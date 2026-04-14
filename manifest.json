@@ -1,0 +1,18 @@
+{
+  "name": "Agenda Escolar & Viagens",
+  "short_name": "Minha Agenda",
+  "description": "Agenda inteligente para organizar estudos e viagens.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4a90e2",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://flaticon.com",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

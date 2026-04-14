@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Pro - Escolar & Viagens</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root { 
+            --primary: #4a90e2; 
+            --bg-overlay: rgba(255, 255, 255, 0.95); 
+            --color-escolar: #4a90e2; 
+            --color-viagem: #27ae60;
+            --text: #333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background-image: url('https://freepik.com');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            display: flex; justify-content: center; min-height: 100vh; padding: 15px;
+        }
+
+        .container {
+            width: 100%; max-width: 900px;
+            background: var(--bg-overlay); backdrop-filter: blur(12px);
+            border-radius: 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+
+        /* Header */
+        .header { text-align: center; padding: 25px; background: rgba(255,255,255,0.6); border-bottom: 1px solid #eee; }
+        .logo { width: 55px; height: auto; margin-bottom: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+
+        /* Abas */
+        .tabs { display: flex; background: rgba(0,0,0,0.03); }
+        .tab-btn { flex: 1; padding: 16px; border: none; background: none; font-weight: bold; cursor: pointer; color: #777; transition: 0.3s; font-size: 0.9rem; }
+        .tab-btn.active { background: #fff; color: var(--primary); border-bottom: 4px solid var(--primary); }
+
+        .content { padding: 20px; }
+
+        /* Grid Layout */
+        .grid-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
+        @media (max-width: 768px) { .grid-layout { grid-template-columns: 1fr; } }
+
+        /* Calendário Customizado */
+        .calendar-card { background: #fff; padding: 18px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: var(--primary); }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
+        
+        .weekday { font-weight: bold; font-size: 0.7rem; color: #aaa; padding-bottom: 10px; text-transform: uppercase; }
+        
+        .day { 
+            padding: 10px 2px; font-size: 0.9rem; border-radius: 10px; cursor: pointer; 
+            background: #fdfdfd; position: relative; min-height: 55px; 
+            border: 1px solid #f5f5f5; transition: all 0.2s ease;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+        }
+        .day:hover { background: #f0f7ff; border-color: var(--primary); transform: translateY(-2px); }
+        .day.today { background: #fff9db; border-color: #ffd43b; font-weight: bold; color: #e67e22; }
+        
+        /* Pontos Coloridos por Categoria */
+        .dot-row { 
+            display: flex; justify-content: center; gap: 3px; 
+            position: absolute; bottom: 6px; width: 100%; 
+        }
+        .dot { 
+            width: 7px; height: 7px; border-radius: 50%; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* Botões de Filtro */
+        .nav-filters { display: flex; gap: 10px; margin-bottom: 20px; }
+        .filter-btn { 
+            flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #e0e0e0; 
+            background: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 600; 
+            transition: 0.3s; color: #666;
+        }
+        .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 10px rgba(74,144,226,0.3); }
+
+        /* Cards de Atividade */
+        .task-card { 
+            background: #fff; padding: 14px; margin-bottom: 12px; border-radius: 10px; 
+            border-left: 6px solid #ccc; display: flex; justify-content: space-between; 
+            align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .task-info b { display: block; font-size: 1rem; margin-bottom: 2px; }
+        .task-info small { color: #888; font-size: 0.8rem; }
+
+        /* Ícones e Ações */
+        .task-actions { display: flex; align-items: center; }
+        .btn-action { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 5px; transition: 0.2s; }
+        .btn-action:hover { transform: scale(1.2); }
+
+        /* Formulários */
+        .form-card { background: #fff; padding: 20px; border-radius: 15px; margin-top: 20px; border: 1px solid #eee; }
+        .form-card b { font-size: 0.9rem; color: #555; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; outline: none; transition: 0.3s; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(74,144,226,0.1); }
+        .btn-add { background: var(--primary); color: white; font-weight: bold; border: none; margin-top: 15px; cursor: pointer; padding: 14px; border-radius: 10px; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="https://flaticon.com" class="logo" alt="Logo">
+        <h2>Minha Agenda</h2>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('agenda', this)">Calendário</button>
+        <button class="tab-btn" onclick="switchTab('lista', this)">Atividades</button>
+        <button class="tab-btn" onclick="switchTab('config', this)">Importar CSV</button>
+    </div>
+
+    <div class="content">
+        <!-- ABA 1: CALENDÁRIO -->
+        <div id="agenda" class="tab-content">
+            <div class="grid-layout">
+                <div class="calendar-card">
+                    <div class="cal-header">
+                        <button onclick="moveMonth(-1)" class="btn-action">◀</button>
+                        <b id="monthTitle"></b>
+                        <button onclick="moveMonth(1)" class="btn-action">▶</button>
+                    </div>
+                    <div class="cal-grid" id="calGrid"></div>
+                </div>
+                <div>
+                    <h4 id="viewTitle" style="color: var(--primary); margin-bottom: 10px;">Selecione um dia</h4>
+                    <div id="dayList"></div>
+                    <div class="form-card">
+                        <b>➕ Novo Registro</b>
+                        <input type="text" id="tName" placeholder="Ex: Prova de Matemática">
+                        <input type="date" id="tDate">
+                        <select id="tType">
+                            <option value="Escolar">Escolar 📚</option>
+                            <option value="Viagem">Viagem ✈️</option>
+                        </select>
+                        <button class="btn-add" onclick="handleAdd()">Salvar na Agenda</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 2: LISTA COM FILTROS -->
+        <div id="lista" class="tab-content" style="display:none">
+            <div class="nav-filters">
+                <button class="filter-btn" onclick="applyFilter('hoje', this)">Hoje</button>
+                <button class="filter-btn" onclick="applyFilter('semana', this)">Semana</button>
+                <button class="filter-btn active" onclick="applyFilter('todas', this)">Todas</button>
+            </div>
+            <input type="text" id="searchBox" placeholder="🔍 Buscar por nome..." onkeyup="applyFilter(currentPeriod)">
+            <div id="fullList" style="margin-top:20px;"></div>
+        </div>
+
+        <!-- ABA 3: OPÇÕES -->
+        <div id="config" class="tab-content" style="display:none">
+            <h4>Importação em Massa</h4>
+            <p style="font-size: 0.75rem; color: #888; margin: 8px 0;">Formato: Título, AAAA-MM-DD, Tipo</p>
+            <textarea id="csvArea" placeholder="Prova 1, 2024-06-15, Escolar&#10;Férias, 2024-07-20, Viagem" style="height:120px; font-family:monospace;"></textarea>
+            <button onclick="handleCSV()" style="background:#27ae60; color:#fff; border:none; padding:12px; border-radius:10px; cursor:pointer; width:100%; font-weight:bold; margin-top:10px;">Processar CSV</button>
+            <hr style="margin:25px 0;">
+            <button onclick="clearData()" style="background:#ff7675; color:#fff; border:none; padding:12px; border-radius:10px; cursor:pointer; width:100%; font-weight:bold;">Limpar Todo o Armazenamento</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let tasks = JSON.parse(localStorage.getItem('app_agenda_final')) || [];
+    let viewDate = new Date();
+    let selectedDateStr = null;
+    let currentPeriod = 'todas';
+    const categoryColors = { 'Escolar': '#4a90e2', 'Viagem': '#27ae60' };
+
+    function switchTab(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).style.display = 'block';
+        btn.classList.add('active');
+        if(id === 'lista') applyFilter(currentPeriod);
+    }
+
+    function renderCal() {
+        const grid = document.getElementById('calGrid');
+        grid.innerHTML = ['DOM','SEG','TER','QUA','QUI','SEX','SAB']
+            .map(d => `<div class="weekday">${d}</div>`).join('');
+        
+        const title = document.getElementById('monthTitle');
+        const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+        title.innerText = `${months[viewDate.getMonth()]} ${viewDate.getFullYear()}`;
+
+        const start = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
+        const days = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
+
+        for(let i=0; i<start; i++) grid.appendChild(document.createElement('div'));
+
+        for(let d=1; d<=days; d++) {
+            const div = document.createElement('div');
+            div.className = 'day';
+            const dateStr = `${viewDate.getFullYear()}-${String(viewDate.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            
+            // Marca o dia atual
+            const hojeLocal = new Date().toISOString().split('T')[0];
+            if(dateStr === hojeLocal) div.classList.add('today');
+
+            // Filtra tarefas do dia para desenhar os pontos coloridos
+            const dayTasks = tasks.filter(t => t.date === dateStr);
+            if(dayTasks.length > 0) {
+                const dots = document.createElement('div');
+                dots.className = 'dot-row';
+                // Adiciona um ponto para cada tarefa (limitado a 4 para não quebrar o layout)
+                dayTasks.slice(0,4).forEach(t => {
+                    const dot = document.createElement('span');
+                    dot.className = 'dot';
+                    dot.style.background = categoryColors[t.type] || '#ccc';
+                    dots.appendChild(dot);
+                });
+                div.appendChild(dots);
+            }
+            div.innerText = d;
+            div.onclick = () => showDay(dateStr, div);
+            grid.appendChild(div);
+        }
+    }
+
+    function showDay(date, el) {
+        document.querySelectorAll('.day').forEach(d => d.style.borderColor = '#f5f5f5');
+        el.style.borderColor = 'var(--primary)';
+        
+        selectedDateStr = date;
+        document.getElementById('viewTitle').innerText = date.split('-').reverse().join('/');
+        const list = document.getElementById('dayList');
+        list.innerHTML = '';
+        const filtered = tasks.filter(t => t.date === date);
+        if(filtered.length === 0) list.innerHTML = '<p style="color:#aaa; font-size:0.8rem;">Vazio</p>';
+        filtered.forEach(t => list.appendChild(createItem(t)));
+    }
+
+    function applyFilter(period, btn) {
+        currentPeriod = period;
+        if(btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        
+        const container = document.getElementById('fullList');
+        const search = document.getElementById('searchBox').value.toLowerCase();
+        container.innerHTML = '';
+
+        const hoje = new Date(); hoje.setHours(0,0,0,0);
+        const prox = new Date(); prox.setDate(hoje.getDate() + 7);
+
+        let filtered = tasks.filter(t => {
+            const tDate = new Date(t.date + 'T00:00:00');
+            const matchSearch = t.name.toLowerCase().includes(search);
+            if(!matchSearch) return false;
+
+            if(period === 'hoje') return tDate.getTime() === hoje.getTime();
+            if(period === 'semana') return tDate >= hoje && tDate <= prox;
+            return true;
+        }).sort((a,b) => new Date(a.date) - new Date(b.date));
+
+        filtered.forEach(t => container.appendChild(createItem(t)));
+    }
+
+    function createItem(t) {
+        const div = document.createElement('div');
+        div.className = 'task-card';
+        div.style.borderLeftColor = categoryColors[t.type];
+        div.innerHTML = `
+            <div class="task-info">
+                <b>${t.name}</b>
+                <small>${t.type} • ${t.date.split('-').reverse().join('/')}</small>
+            </div>
+            <div class="task-actions">
+                <button class="btn-action" onclick="toGoogle('${t.name}','${t.date}')" title="Google Calendar">🗓️</button>
+                <button class="btn-action" onclick="removeTask(${t.id})" style="color:#ff7675" title="Excluir">✖</button>
+            </div>`;
+        return div;
+    }
+
+    function handleAdd() {
+        const n = document.getElementById('tName').value;
+        const d = document.getElementById('tDate').value;
+        const t = document.getElementById('tType').value;
+        if(!n || !d) return alert("Preencha o título e a data!");
+        
+        tasks.push({ id: Date.now(), name: n, date: d, type: t });
+        save();
+        document.getElementById('tName').value = '';
+        alert("Adicionado!");
+    }
+
+    function toGoogle(n, d) {
+        const date = d.replace(/-/g,'');
+        window.open(`https://google.com{encodeURIComponent(n)}&dates=${date}/${date}`, '_blank');
+    }
+
+    function handleCSV() {
+        const lines = document.getElementById('csvArea').value.split('\n');
+        lines.forEach(l => {
+            const [name, date, type] = l.split(',').map(s => s?.trim());
+            if(name && date) tasks.push({ id: Date.now() + Math.random(), name, date, type: type || 'Escolar' });
+        });
+        save(); alert("CSV processado!");
+    }
+
+    function save() { 
+        localStorage.setItem('app_agenda_final', JSON.stringify(tasks)); 
+        renderCal(); 
+    }
+
+    function removeTask(id) {
+        if(!confirm("Deseja excluir este item?")) return;
+        tasks = tasks.filter(t => t.id !== id);
+        save();
+        if(selectedDateStr) {
+            const list = document.getElementById('dayList');
+            list.innerHTML = '';
+            tasks.filter(t => t.date === selectedDateStr).forEach(t => list.appendChild(createItem(t)));
+        }
+        applyFilter(currentPeriod);
+    }
+
+    function moveMonth(s) { viewDate.setMonth(viewDate.getMonth() + s); renderCal(); }
+
+    function clearData() {
+        if(confirm("ATENÇÃO: Isso apagará todas as suas tarefas permanentemente. Continuar?")) {
+            tasks = [];
+            save();
+            location.reload();
+        }
+    }
+
+    renderCal();
+</script>
+</body>
+</html>
